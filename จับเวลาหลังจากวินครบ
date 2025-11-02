@@ -1,0 +1,106 @@
+-- ให้ GUI ไม่หายเมื่อตาย
+local player = game.Players.LocalPlayer
+local PlayerGui = player:WaitForChild("PlayerGui")
+
+-- ตรวจสอบว่ามี GUI เดิมหรือยัง
+if PlayerGui:FindFirstChild("CountdownGui") then
+	PlayerGui.CountdownGui:Destroy()
+end
+
+-- สร้าง ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "CountdownGui"
+screenGui.ResetOnSpawn = false  -- ✅ ไม่หายเมื่อตาย
+screenGui.Parent = PlayerGui
+
+-- กรอบหลัก
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 170, 0, 110) -- 🔹 ขนาดเล็ก
+mainFrame.Position = UDim2.new(0.5, -85, 0.4, -55)
+mainFrame.BackgroundColor3 = Color3.fromRGB(173, 216, 230) -- สีน้ำเงินพาสเทล
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+-- มุมโค้ง
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = mainFrame
+
+-- Label แสดงเวลา
+local timeLabel = Instance.new("TextLabel")
+timeLabel.Size = UDim2.new(1, -20, 0, 40)
+timeLabel.Position = UDim2.new(0, 10, 0, 10)
+timeLabel.BackgroundTransparency = 1
+timeLabel.Text = "02:01" -- เริ่มต้นที่ 2 นาที 1 วินาที
+timeLabel.TextColor3 = Color3.new(1, 1, 1)
+timeLabel.TextScaled = true
+timeLabel.Font = Enum.Font.GothamBold
+timeLabel.Parent = mainFrame
+
+-- ปุ่ม Start
+local startButton = Instance.new("TextButton")
+startButton.Size = UDim2.new(0.6, 0, 0, 35)
+startButton.Position = UDim2.new(0.2, 0, 0.63, 0)
+startButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0) -- เขียว
+startButton.Text = "Start"
+startButton.TextColor3 = Color3.new(1, 1, 1)
+startButton.TextScaled = true
+startButton.Font = Enum.Font.GothamBold
+startButton.Parent = mainFrame
+
+-- มุมโค้งปุ่ม
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0, 8)
+btnCorner.Parent = startButton
+
+-- ตัวแปรเวลา
+local totalTime = 121
+local counting = false
+
+-- ฟังก์ชันแปลงวินาทีเป็นรูปแบบ MM:SS
+local function formatTime(seconds)
+	local m = math.floor(seconds / 60)
+	local s = seconds % 60
+	return string.format("%02d:%02d", m, s)
+end
+
+-- ฟังก์ชันเริ่มนับเวลา
+local function startCountdown()
+	if counting then return end
+	counting = true
+	startButton.Text = "Stop"
+	startButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0) -- สีแดง
+
+	while counting and totalTime > 0 do
+		task.wait(1)
+		totalTime -= 1
+		timeLabel.Text = formatTime(totalTime)
+	end
+
+	if totalTime <= 0 then
+		counting = false
+		totalTime = 121
+		timeLabel.Text = "02:01"
+		startButton.Text = "Start"
+		startButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+	end
+end
+
+-- ฟังก์ชันหยุดนับและรีเซ็ตเวลา
+local function stopCountdown()
+	counting = false
+	totalTime = 121
+	timeLabel.Text = "02:01"
+	startButton.Text = "Start"
+	startButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+end
+
+-- การกดปุ่ม
+startButton.MouseButton1Click:Connect(function()
+	if counting then
+		stopCountdown()
+	else
+		startCountdown()
+	end
+end)
