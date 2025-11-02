@@ -1,0 +1,102 @@
+-- 🪟 สร้าง ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MyCounterGui"
+screenGui.ResetOnSpawn = false -- 👈 GUI จะไม่หายเมื่อผู้เล่นตาย
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- 🎨 สร้างกรอบหลัก
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 200, 0, 100)
+mainFrame.Position = UDim2.new(0.5, -100, 0.5, -50)
+mainFrame.BackgroundColor3 = Color3.fromRGB(173, 216, 230) -- ฟ้าอ่อนพาสเทล
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+-- มุมโค้ง
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = mainFrame
+
+-- 🔴 ปุ่มปิดมุมบนซ้าย
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 20, 0, 20)
+closeButton.Position = UDim2.new(0, 5, 0, 5)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.TextScaled = true
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.Parent = mainFrame
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(1, 0)
+closeCorner.Parent = closeButton
+
+closeButton.MouseButton1Click:Connect(function()
+	mainFrame.Visible = false
+end)
+
+-- 🧾 สร้าง Label แสดงตัวเลข
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1, 0, 0.4, 0)
+label.Position = UDim2.new(0, 0, 0, 10)
+label.BackgroundTransparency = 1
+label.Text = "0/10"
+label.TextColor3 = Color3.fromRGB(255, 255, 255)
+label.Font = Enum.Font.SourceSansBold
+label.TextScaled = true
+label.Parent = mainFrame
+
+-- 📊 ค่าตัวเลข
+local count = 0
+local maxCount = 10 -- แค่ไว้แสดงในข้อความ
+
+-- ➖ ปุ่มลบ
+local minusButton = Instance.new("TextButton")
+minusButton.Size = UDim2.new(0.4, -10, 0.3, 0)
+minusButton.Position = UDim2.new(0.05, 0, 0.6, 0)
+minusButton.BackgroundColor3 = Color3.fromRGB(135, 206, 250) -- ฟ้าพาสเทล
+minusButton.Text = "-"
+minusButton.TextScaled = true
+minusButton.Font = Enum.Font.SourceSansBold
+minusButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+minusButton.Parent = mainFrame
+
+local minusCorner = Instance.new("UICorner")
+minusCorner.CornerRadius = UDim.new(0, 8)
+minusCorner.Parent = minusButton
+
+-- ➕ ปุ่มบวก
+local plusButton = Instance.new("TextButton")
+plusButton.Size = UDim2.new(0.4, -10, 0.3, 0)
+plusButton.Position = UDim2.new(0.55, 0, 0.6, 0)
+plusButton.BackgroundColor3 = Color3.fromRGB(135, 206, 250)
+plusButton.Text = "+"
+plusButton.TextScaled = true
+plusButton.Font = Enum.Font.SourceSansBold
+plusButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+plusButton.Parent = mainFrame
+
+local plusCorner = Instance.new("UICorner")
+plusCorner.CornerRadius = UDim.new(0, 8)
+plusCorner.Parent = plusButton
+
+-- 🔁 ฟังก์ชันอัปเดตตัวเลข
+local function updateLabel()
+	label.Text = tostring(count).."/"..tostring(maxCount)
+end
+
+-- 🖱️ การคลิกปุ่ม (ไม่มีขีดจำกัด)
+plusButton.MouseButton1Click:Connect(function()
+	count += 1
+	updateLabel()
+end)
+
+minusButton.MouseButton1Click:Connect(function()
+	count -= 1
+	updateLabel()
+end)
+
+-- 🚀 เริ่มต้น
+updateLabel()
