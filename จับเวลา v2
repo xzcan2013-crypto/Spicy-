@@ -1,0 +1,147 @@
+-- 🧩 GUI ตัวนับเวลาแบบขนาดเล็ก
+-- วางใน StarterGui → LocalScript ได้เลย
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "TimerGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- 🔷 Frame หลัก (ย่อขนาดลง)
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 180, 0, 110)
+frame.Position = UDim2.new(0.7, 0, 0.1, 0)
+frame.BackgroundColor3 = Color3.fromRGB(0, 60, 120)
+frame.Active = true
+frame.Draggable = true
+frame.Parent = screenGui
+
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 10)
+
+-- ⏱️ Label เวลา
+local timerLabel = Instance.new("TextLabel")
+timerLabel.Size = UDim2.new(1, 0, 0, 35)
+timerLabel.Position = UDim2.new(0, 0, 0, 8)
+timerLabel.Text = "10:00"
+timerLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+timerLabel.TextScaled = true
+timerLabel.BackgroundTransparency = 1
+timerLabel.Font = Enum.Font.SourceSansBold
+timerLabel.Parent = frame
+
+-- 🔵 ปุ่ม +
+local plusButton = Instance.new("TextButton")
+plusButton.Size = UDim2.new(0, 60, 0, 30)
+plusButton.Position = UDim2.new(0.08, 0, 0.5, 0)
+plusButton.Text = "+10s"
+plusButton.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+plusButton.TextColor3 = Color3.new(1, 1, 1)
+plusButton.Font = Enum.Font.SourceSansBold
+plusButton.TextSize = 18
+plusButton.Parent = frame
+Instance.new("UICorner", plusButton).CornerRadius = UDim.new(0, 6)
+
+-- 🔵 ปุ่ม -
+local minusButton = Instance.new("TextButton")
+minusButton.Size = UDim2.new(0, 60, 0, 30)
+minusButton.Position = UDim2.new(0.55, 0, 0.5, 0)
+minusButton.Text = "-10s"
+minusButton.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+minusButton.TextColor3 = Color3.new(1, 1, 1)
+minusButton.Font = Enum.Font.SourceSansBold
+minusButton.TextSize = 18
+minusButton.Parent = frame
+Instance.new("UICorner", minusButton).CornerRadius = UDim.new(0, 6)
+
+-- 🔴 ปุ่มรีเซ็ต
+local resetButton = Instance.new("TextButton")
+resetButton.Size = UDim2.new(0, 80, 0, 30)
+resetButton.Position = UDim2.new(0.28, 0, 0.5, 0)
+resetButton.Text = "รีเซ็ต"
+resetButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
+resetButton.TextColor3 = Color3.new(1, 1, 1)
+resetButton.Font = Enum.Font.SourceSansBold
+resetButton.TextSize = 18
+resetButton.Visible = false
+resetButton.Parent = frame
+Instance.new("UICorner", resetButton).CornerRadius = UDim.new(0, 6)
+
+-- 🏆 ข้อความชนะ
+local winLabel = Instance.new("TextLabel")
+winLabel.Size = UDim2.new(1, 0, 0, 30)
+winLabel.Position = UDim2.new(0, 0, 0.8, 0)
+winLabel.Text = "ชนะ!"
+winLabel.TextScaled = true
+winLabel.TextColor3 = Color3.new(1, 1, 1)
+winLabel.BackgroundTransparency = 1
+winLabel.Visible = false
+winLabel.Font = Enum.Font.SourceSansBold
+winLabel.Parent = frame
+
+-- ===========================
+-- ⏳ Logic
+-- ===========================
+local totalTime = 600
+local running = true
+
+local function formatTime(t)
+	local m = math.floor(t / 60)
+	local s = t % 60
+	return string.format("%02d:%02d", m, s)
+end
+
+local function updateTimer()
+	timerLabel.Text = formatTime(totalTime)
+end
+
+local function onTimeEnd()
+	winLabel.Visible = true
+	plusButton.Visible = false
+	minusButton.Visible = false
+	resetButton.Visible = true
+end
+
+plusButton.MouseButton1Click:Connect(function()
+	totalTime += 10
+	updateTimer()
+end)
+
+minusButton.MouseButton1Click:Connect(function()
+	totalTime = math.max(0, totalTime - 10)
+	updateTimer()
+end)
+
+resetButton.MouseButton1Click:Connect(function()
+	totalTime = 600
+	running = true
+	winLabel.Visible = false
+	resetButton.Visible = false
+	plusButton.Visible = true
+	minusButton.Visible = true
+	updateTimer()
+end)
+
+-- ตัวจับเวลา
+task.spawn(function()
+	while true do
+		if running and totalTime > 0 then
+			totalTime -= 1
+			updateTimer()
+			if totalTime <= 0 then
+				running = false
+				onTimeEnd()
+			end
+		end
+		task.wait(1)
+	end
+end)
+
+-- ป้องกัน GUI หายเมื่อผู้เล่นตาย
+local player = game.Players.LocalPlayer
+player.CharacterAdded:Connect(function()
+	task.wait(1)
+	screenGui.Enabled = true
+end)
+
+-- เริ่มต้น
+updateTimer()
