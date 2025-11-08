@@ -1,0 +1,149 @@
+-- 🪟 สร้าง ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "NumberCounterGui"
+screenGui.ResetOnSpawn = false -- ✅ ไม่หายเมื่อผู้เล่นตาย
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- 🎨 กรอบหลัก (พื้นหลังสีน้ำเงินพาสเทล + มุมโค้ง + เงา + ขยับได้)
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 190, 0, 150)
+mainFrame.Position = UDim2.new(0.5, -100, 0.5, -80)
+mainFrame.BackgroundColor3 = Color3.fromRGB(173, 216, 230) -- ฟ้าพาสเทล
+mainFrame.Active = true
+mainFrame.Draggable = true
+mainFrame.Parent = screenGui
+
+-- ✅ มุมโค้ง
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 15)
+corner.Parent = mainFrame
+
+-- 🌫️ เงาแบบนุ่ม
+local shadow = Instance.new("ImageLabel")
+shadow.Name = "Shadow"
+shadow.Size = UDim2.new(1, 20, 1, 20)
+shadow.Position = UDim2.new(0, -10, 0, -10)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://1316045217"
+shadow.ImageColor3 = Color3.fromRGB(150, 150, 255)
+shadow.ImageTransparency = 0.5
+shadow.ScaleType = Enum.ScaleType.Slice
+shadow.SliceCenter = Rect.new(10, 10, 118, 118)
+shadow.ZIndex = 0
+shadow.Parent = mainFrame
+
+-- 🔢 Label แสดงตัวเลข
+local counterLabel = Instance.new("TextLabel")
+counterLabel.Size = UDim2.new(1, 0, 0, 60)
+counterLabel.Position = UDim2.new(0, 0, 0, 5)
+counterLabel.BackgroundTransparency = 1
+counterLabel.Text = "0 / 5"
+counterLabel.TextColor3 = Color3.new(1, 1, 1)
+counterLabel.TextStrokeTransparency = 0.3
+counterLabel.TextScaled = true
+counterLabel.Font = Enum.Font.SourceSansBold
+counterLabel.Parent = mainFrame
+
+-- 🧮 ตัวแปรเก็บค่า
+local currentValue = 0
+local maxValue = 5
+
+-- 🟩 ปุ่มบวก
+local addButton = Instance.new("TextButton")
+addButton.Size = UDim2.new(0, 80, 0, 40)
+addButton.Position = UDim2.new(0, 10, 1, -50)
+addButton.BackgroundColor3 = Color3.fromRGB(144, 238, 144) -- เขียวพาสเทล
+addButton.Text = "บวก"
+addButton.TextScaled = true
+addButton.Font = Enum.Font.SourceSansBold
+addButton.TextColor3 = Color3.new(0, 0, 0)
+addButton.Parent = mainFrame
+
+local addCorner = Instance.new("UICorner")
+addCorner.CornerRadius = UDim.new(0, 10)
+addCorner.Parent = addButton
+
+-- 🟥 ปุ่มลบ
+local subButton = Instance.new("TextButton")
+subButton.Size = UDim2.new(0, 80, 0, 40)
+subButton.Position = UDim2.new(1, -90, 1, -50)
+subButton.BackgroundColor3 = Color3.fromRGB(255, 182, 193) -- ชมพูพาสเทล
+subButton.Text = "ลบ"
+subButton.TextScaled = true
+subButton.Font = Enum.Font.SourceSansBold
+subButton.TextColor3 = Color3.new(0, 0, 0)
+subButton.Parent = mainFrame
+
+local subCorner = Instance.new("UICorner")
+subCorner.CornerRadius = UDim.new(0, 10)
+subCorner.Parent = subButton
+
+-- ⌨️ ช่องกรอกตัวเลข
+local inputBox = Instance.new("TextBox")
+inputBox.Size = UDim2.new(1, -20, 0, 35)
+inputBox.Position = UDim2.new(0, 10, 0.55, 0)
+inputBox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+inputBox.TextColor3 = Color3.new(0, 0, 0)
+inputBox.PlaceholderText = "กรอกตัวเลข เช่น 50 หรือ -50"
+inputBox.TextScaled = true
+inputBox.Font = Enum.Font.SourceSansBold
+inputBox.Parent = mainFrame
+
+local boxCorner = Instance.new("UICorner")
+boxCorner.CornerRadius = UDim.new(0, 10)
+boxCorner.Parent = inputBox
+
+-- ❌ ปุ่มปิด GUI
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 25, 0, 25)
+closeButton.Position = UDim2.new(1, -30, 0, 5)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 105, 97)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.new(1, 1, 1)
+closeButton.TextScaled = true
+closeButton.Font = Enum.Font.SourceSansBold
+closeButton.Parent = mainFrame
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(1, 0)
+closeCorner.Parent = closeButton
+
+closeButton.MouseButton1Click:Connect(function()
+	mainFrame.Visible = false
+end)
+
+-- 🧠 ฟังก์ชันอัปเดตข้อความ
+local function updateDisplay()
+	counterLabel.Text = tostring(currentValue) .. " / " .. tostring(maxValue)
+end
+
+-- 🎯 ปุ่มบวก
+addButton.MouseButton1Click:Connect(function()
+	currentValue += 1
+	updateDisplay()
+end)
+
+-- 🎯 ปุ่มลบ
+subButton.MouseButton1Click:Connect(function()
+	currentValue -= 1
+	updateDisplay()
+end)
+
+-- 🎯 เมื่อผู้เล่นกรอกตัวเลขแล้วกด Enter
+inputBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed then
+		local num = tonumber(inputBox.Text)
+		if num then
+			currentValue += num
+			updateDisplay()
+			inputBox.Text = ""
+		else
+			inputBox.Text = "ใส่ตัวเลขเท่านั้น"
+			task.wait(1)
+			inputBox.Text = ""
+		end
+	end
+end)
+
+-- เริ่มต้นแสดงค่า
+updateDisplay()
